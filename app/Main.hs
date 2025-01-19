@@ -1,6 +1,9 @@
-module Main (main) where
+module Main
+  ( main,
+  )
+where
 
-import Lib
+import App (startApp)
 
 main :: IO ()
-main = exec
+main = startApp
