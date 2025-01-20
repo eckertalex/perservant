@@ -1,4 +1,4 @@
-# Changelog for `todo-hs`
+# Changelog for `perservant`
 
 All notable changes to this project will be documented in this file.
 
