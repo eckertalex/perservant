@@ -22,20 +22,19 @@ type GetTaskApi =
     :> Get '[JSON] (Maybe Task)
 
 type TaskApi =
-  "api"
-    :> "v1"
+  "v1"
     :> "tasks"
     :> ( GetTasksApi
            :<|> GetTaskApi
        )
 
 taskServer :: (MonadIO m) => ServerT TaskApi (AppT m)
-taskServer = tasksGet :<|> taskGet
+taskServer = allTasks :<|> taskById
 
-tasksGet :: (MonadIO m) => (AppT m) [Task]
-tasksGet = return [Task (TaskId 1) (UserId 1) "Write documentation" False, Task (TaskId 2) (UserId 1) "Refactor codebase" True]
+allTasks :: (MonadIO m) => (AppT m) [Task]
+allTasks = return [Task (TaskId 1) (UserId 1) "Write documentation" False, Task (TaskId 2) (UserId 1) "Refactor codebase" True]
 
-taskGet :: (MonadIO m) => TaskId -> (AppT m) (Maybe Task)
-taskGet (TaskId 1) = return $ Just (Task (TaskId 1) (UserId 1) "Write documentation" True)
-taskGet (TaskId 2) = return $ Just (Task (TaskId 2) (UserId 1) "Refactor codebase" True)
-taskGet _ = return Nothing
+taskById :: (MonadIO m) => TaskId -> (AppT m) (Maybe Task)
+taskById (TaskId 1) = return $ Just (Task (TaskId 1) (UserId 1) "Write documentation" True)
+taskById (TaskId 2) = return $ Just (Task (TaskId 2) (UserId 1) "Refactor codebase" True)
+taskById _ = return Nothing

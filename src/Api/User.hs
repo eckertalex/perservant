@@ -21,8 +21,7 @@ type GetUserApi =
     :> Get '[JSON] (Maybe User)
 
 type UserApi =
-  "api"
-    :> "v1"
+  "v1"
     :> "users"
     :> ( GetUsersApi
            :<|> GetUserApi
