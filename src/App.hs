@@ -4,26 +4,49 @@ module App
 where
 
 import Api (app)
-import Config (Config (..))
+import Config (Config (..), Environment (Development))
 import Network.Wai.Handler.Warp (run)
 import Servant
+import System.Environment (lookupEnv)
 
 startApp :: IO ()
 startApp = do
-  withConfig $ \config -> do
-    cfg <- initialize config
-    run (configPort config) cfg
+  config <- loadConfig
+  putStrLn $ "Starting server on port " ++ show (configPort config) ++ " in " ++ show (configEnv config) ++ " mode."
+  appWithConfig <- createApp config
+  run (configPort config) appWithConfig
 
--- let config = Config "development" 3000
--- putStrLn $ "Starting server on port " ++ show (port config) ++ " in " ++ show (env config) ++ " mode."
--- run (configPort config) config
+createApp :: Config -> IO Application
+createApp = pure . app
 
-initialize :: Config -> IO Application
-initialize = pure . app
-
-withConfig :: (Config -> IO a) -> IO a
-withConfig action = do
-  action
+loadConfig :: IO Config
+loadConfig = do
+  port <- lookupSetting "PORT" 45067
+  env <- lookupSetting "ENV" Development
+  pure
     Config
-      { configPort = 3000
+      { configEnv = env,
+        configPort = port
       }
+
+lookupSetting :: (Read a) => String -> a -> IO a
+lookupSetting env def = do
+  maybeValue <- lookupEnv env
+  case maybeValue of
+    Nothing ->
+      return def
+    Just str ->
+      maybe (handleFailedRead str) return (readMaybe str)
+  where
+    handleFailedRead str =
+      error $
+        mconcat
+          [ "Failed to read [[",
+            str,
+            "]] for environment variable ",
+            env
+          ]
+    readMaybe :: (Read a) => String -> Maybe a
+    readMaybe s = case reads s of
+      [(x, "")] -> Just x
+      _ -> Nothing

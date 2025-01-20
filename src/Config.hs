@@ -1,5 +1,4 @@
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE StrictData #-}
@@ -8,6 +7,7 @@ module Config
   ( Config (..),
     AppT (..),
     App,
+    Environment (..),
   )
 where
 
@@ -31,5 +31,14 @@ newtype AppT m a
 
 type App = AppT IO
 
-data Config where
-  Config :: {configPort :: Port} -> Config
+data Config
+  = Config
+  { configEnv :: Environment,
+    configPort :: Port
+  }
+
+data Environment
+  = Development
+  | Test
+  | Production
+  deriving (Eq, Show, Read)
